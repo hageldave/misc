@@ -5,18 +5,18 @@ function result = fsq(x,l)
 result = transpose(x)*l*x;
 endfunction
 
-function result = fsq2D(x1,x2,l)
+function result = func2D(x1,x2,f)
   z = ones(rows(x1),columns(x1));
   for i = 1:rows(x1)
     for j = 1:columns(x1)
-      z(i,j) = fsq([x1(i,j);x2(i,j)],l);
+      z(i,j) = f([x1(i,j);x2(i,j)]);
     endfor
   endfor
   result = z;
 endfunction
 
-l=diag([0,1]);
+l=diag([1,10]);
 domain = linspace(-2,2,100);
 [x,y] = meshgrid(domain,domain);
-z = fsq2D(x,y,l);
+z = func2D(x,y,@(x)fsq(x,l));
 surf(domain,domain,z);
