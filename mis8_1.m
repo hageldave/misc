@@ -15,7 +15,7 @@ function result = func2D(x1,x2,f)
   result = z;
 endfunction
 
-l=diag([1,10]);
+l=diag([1,-1]);
 domain = linspace(-2,2,100);
 [x,y] = meshgrid(domain,domain);
 z = func2D(x,y,@(x)fsq(x,l));
