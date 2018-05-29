@@ -39,6 +39,7 @@ function e = error4regularization(lam, data)
     XTX = X'*X;
     %lam = 41;
     reg = lam*eye(rows(XTX));
+    reg(1,1) = 0;
     beta = inv(XTX + reg)*X'*Y;
     
     %error
@@ -49,9 +50,9 @@ function e = error4regularization(lam, data)
   e = e/K;
 endfunction
 
-error4regularization(41, data)
 toOptimize = @(lam) error4regularization(lam, data);
 optimalLambda = fminsearch(toOptimize, 30)
+err = error4regularization(optimalLambda, data)
 
 %%compute beta
 %%beta = inv(X'*X)*X'*Y;

@@ -20,6 +20,7 @@ X = [ones(n,1),X, X1.*X1, X1.*X2, X2.*X2];
 XTX = X'*X;
 lam = 0.01;
 reg = lam*eye(rows(XTX));
+reg(1,1) = 0;
 beta = inv(XTX + reg)*X'*Y;
 
 %error

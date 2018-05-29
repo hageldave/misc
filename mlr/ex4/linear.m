@@ -9,11 +9,10 @@ n = size(data, 1);
 X = data(:,1:2);
 Y = data(:,3);
 
-%prepend 1 (constant) (linear features)
 linfeat = @(x) [ones(rows(x),1),x];
 quadfeat = @(x) [ones(rows(x),1),x, x(:,1).*x(:,2), x(:,1).*x(:,1), x(:,2).*x(:,2)];
 sinfeat = @(x) [ones(rows(x),1),x, sin(x(:,1)), cos(x(:,1)), sin(x(:,2)), cos(x(:,2))];
-X = linfeat(X);
+X = sinfeat(X);
 
 
 m = columns(X);
@@ -23,6 +22,7 @@ p = @(x,beta) sigmoid(x*beta);
 grad = @(beta) X'*(p(X,beta)-Y) + 2*lambda*eye(m)*beta;
 hess = @(beta) X'*diag(p(X,beta).*(1-p(X,beta)))*X;
 
+% newton iteration
 beta = zeros(m,1);
 for i = 1:10
   beta = beta - inverse(hess(beta))*grad(beta);
@@ -34,7 +34,7 @@ a_ = a(:);
 b_ = b(:);
 ab = [a_,b_];
 %xgrid with features
-Xgrid = linfeat(ab);
+Xgrid = sinfeat(ab);
 Ygrid = sigmoid(Xgrid*beta);
 Ygrid = reshape(Ygrid, size(a));
 
