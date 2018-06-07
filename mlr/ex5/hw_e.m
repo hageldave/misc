@@ -47,4 +47,4 @@ err
 err/n
 
 % compare original to reconstruct
-mshow([uint8(reshape(X(i,:), shape)),uint8(reshape(Xr(i,:), shape))])
+imshow([uint8(reshape(X(i,:), shape)),uint8(reshape(Xr(i,:), shape))])
