@@ -65,11 +65,12 @@ for c = 1:k
   %means = [means, rand(2,1)*5];
   covariances = [covariances, eye(m,m)(:)];
 end
+gamma_ik = zeros(n,k);
+for i = 1:n
+  gamma_ik(i,randi(k)) = 1;
+end
 
-means
-
-for iter = 1:4
-  gamma_ik = posteriors(X,means,covariances,priors);
+for iter = 1:1
   for c = 1:k
     nk = sum(gamma_ik(:,c));
     % update prior
@@ -90,6 +91,7 @@ for iter = 1:4
     cov *= 1/nk;
     covariances(:,c) = cov(:);
   end
+  gamma_ik = posteriors(X,means,covariances,priors);
 end
 priors
 means
