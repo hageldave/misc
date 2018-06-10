@@ -25,22 +25,18 @@ function P = posteriors(X,means,covs, priors)
     covinv = inv(cov);
     covinvs = [covinvs,covinv(:)];
   end
-  for c = 1:k
-    prior = priors(:,c);
-    mean = means(:,c);
-    cov = reshape(covs(:,c),[m,m]);
-    covinv = reshape(covinvs(:,c),[m,m]);
-    for i = 1:n
-      temp = prior*gaussian(X(i,:)',mean,cov,covinv);
-      sum = 0;
-      for j = 1:k
-        prior = priors(j);
-        mean = means(:,j);
-        cov = reshape(covs(:,j),[m,m]);
-        covinv = reshape(covinvs(:,j),[m,m]);
-        sum += prior*gaussian(X(i,:)',mean,cov,covinv);
-      end
-      P(i,c) = temp/sum;
+  for i = 1:n
+    probs = [];
+    for c = 1:k
+      prior = priors(c);
+      mean = means(:,c);
+      cov = reshape(covs(:,c),[m,m]);
+      covinv = reshape(covinvs(:,c),[m,m]);
+      probs = [probs,prior*gaussian(X(i,:)',mean,cov,covinv)];
+    end
+    s = sum(probs);
+    for c = 1:k
+      P(i,c) = probs(c)/s;
     end
   end
 end
@@ -68,7 +64,7 @@ end
 
 means
 
-for iter = 1:4
+for iter = 1:20
   gamma_ik = posteriors(X,means,covariances,priors);
   for c = 1:k
     nk = sum(gamma_ik(:,c));
