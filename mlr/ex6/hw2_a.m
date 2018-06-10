@@ -2,7 +2,7 @@ clear;
 clc;
 
 function z = gaussian(x,mean,cov, covinv)
-  z =(1/sqrt(2*pi*det(cov)))*exp(-0.5*(x-mean)'*covinv*(x-mean));
+  z =(1/sqrt((2*pi)^3*det(cov)))*exp(-0.5*(x-mean)'*covinv*(x-mean));
 end
 
 function z = n_gaussian(x,mean,cov, covinv)
@@ -26,18 +26,18 @@ function P = posteriors(X,means,covs, priors)
     covinvs = [covinvs,covinv(:)];
   end
   for c = 1:k
-    prior = priors(c);
+    prior = priors(:,c);
     mean = means(:,c);
     cov = reshape(covs(:,c),[m,m]);
     covinv = reshape(covinvs(:,c),[m,m]);
-    for i = 1:rows(X)
+    for i = 1:n
       temp = prior*gaussian(X(i,:)',mean,cov,covinv);
       sum = 0;
       for j = 1:k
         prior = priors(j);
         mean = means(:,j);
-        cov = reshape(covs(:,c),[m,m]);
-        covinv = reshape(covinvs(:,c),[m,m]);
+        cov = reshape(covs(:,j),[m,m]);
+        covinv = reshape(covinvs(:,j),[m,m]);
         sum += prior*gaussian(X(i,:)',mean,cov,covinv);
       end
       P(i,c) = temp/sum;
@@ -56,21 +56,22 @@ n = rows(X);
 m = columns(X);
 k = 3;
 
-priors = (ones(k,1)*(1/k))';
+priors = (ones(1,k)*(1/k));
 rand_indices = randperm(n,k);
 means = [];
 covariances = [];
 for c = 1:k
   means = [means, X(rand_indices(c),:)'];
+  %means = [means, rand(2,1)*5];
   covariances = [covariances, eye(m,m)(:)];
 end
 
-for iter = 1:10
+for iter = 1:4
   gamma_ik = posteriors(X,means,covariances,priors);
   for c = 1:k
     nk = sum(gamma_ik(:,c));
     % update prior
-    priors(c) = nk/n;
+    priors(:,c) = nk/n;
     % update mean
     mean = zeros(m,1);
     for i = 1:n
@@ -91,3 +92,5 @@ end
 priors
 means
 covariances
+
+%scatter(X(:,1),X(:,2));
