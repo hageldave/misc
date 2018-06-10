@@ -2,14 +2,34 @@ clear;
 clc;
 
 function z = gaussian(x,mean,cov, covinv)
-  z =(1/sqrt((2*pi)^3*det(cov)))*exp(-0.5*(x-mean)'*covinv*(x-mean));
+  z =(1/sqrt((2*pi)*det(cov)))*exp(-0.5*(x-mean)'*covinv*(x-mean));
 end
 
-function z = n_gaussian(x,mean,cov, covinv)
-  cols = columns(x);
-  z = zeros(1,cols);
-  for i = 1:cols
-    z(i) = gaussian(x(:,i),mean,cov,covinv);
+function z = gaussmix(x,means,covs,covinvs,priors)
+  m = rows(means);
+  z = 0;
+  for c = 1:columns(priors)
+    mean = means(:,c);
+    cov = reshape(covs(:,c),[m,m]);
+    covinv = reshape(covinvs(:,c),[m,m]);
+    z += priors(c)*gaussian(x,mean,cov,covinv);
+  end
+end
+
+function Z = gaussmixN(X,means,covs,priors)
+  k = columns(priors);
+  m = rows(means);
+  covinvs = [];
+  for c = 1:k
+    cov = covs(:,c);
+    cov = reshape(cov,[m,m]);
+    covinv = inv(cov);
+    covinvs = [covinvs,covinv(:)];
+  end
+  n = rows(X);
+  Z = zeros(n,1);
+  for i = 1:n
+    Z(i) = gaussmix(X(i,:)',means,covs,covinvs,priors);
   end
 end
 
@@ -64,7 +84,7 @@ end
 
 means
 
-for iter = 1:20
+for iter = 1:13
   gamma_ik = posteriors(X,means,covariances,priors);
   for c = 1:k
     nk = sum(gamma_ik(:,c));
@@ -91,4 +111,12 @@ priors
 means
 covariances
 
-%scatter(X(:,1),X(:,2));
+x = linspace(-4,3,100);
+y = linspace(-3.5,1,100);
+[x,y] = meshgrid(x,y);
+shape = size(x);
+Z = gaussmixN([x(:),y(:)],means,covariances,priors);
+Z = reshape(Z,shape);
+hold on;
+scatter(X(:,1),X(:,2),'white','x');
+contourf(x,y,Z,'LineColor', 'none');
