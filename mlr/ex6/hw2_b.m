@@ -86,7 +86,11 @@ for i = 1:n
   gamma_ik(i,randi(k)) = 1;
 end
 
-for iter = 1:13
+liklhd_prev = 0;
+liklhd_current = 1;
+iter = 0;
+%for iter = 1:20
+while (liklhd_current-liklhd_prev) > 0.01
   for c = 1:k
     nk = sum(gamma_ik(:,c));
     % update prior
@@ -108,10 +112,24 @@ for iter = 1:13
     covariances(:,c) = cov(:);
   end
   gamma_ik = posteriors(X,means,covariances,priors);
+  % update convergence criteria
+  liklhd_prev = liklhd_current
+  liklhd_current = sum(log(1+gaussmixN(X,means,covariances,priors)))
+  iter+=1
 end
+
+%result
 priors
 means
 covariances
+
+% viz
+gamma_ik = posteriors(X,means,covariances,priors);
+classes = [];
+for i = 1:n
+  [mx,idx] = max(gamma_ik(i,:));
+  classes = [classes; idx];
+end
 
 x = linspace(-4,3,100);
 y = linspace(-3.5,1,100);
@@ -119,6 +137,16 @@ y = linspace(-3.5,1,100);
 shape = size(x);
 Z = gaussmixN([x(:),y(:)],means,covariances,priors);
 Z = reshape(Z,shape);
-hold on;
+figure,hold on;
 scatter(X(:,1),X(:,2),'white','x');
 contourf(x,y,Z,'LineColor', 'none');
+
+uClass = unique(classes);
+pntColor = colorcube(length(uClass));
+colors = gamma_ik*pntColor;
+markers = ['x','o','+'];
+figure,hold on;
+for ind = 1:length(uClass)
+    %scatter(X(:,1)(classes == uClass(ind)), X(:,2)(classes == uClass(ind)),[], pntColor(ind,:),'x')
+    scatter(X(:,1)(classes == uClass(ind)), X(:,2)(classes == uClass(ind)),[], colors(classes == uClass(ind)),markers(uClass(ind)))
+end
