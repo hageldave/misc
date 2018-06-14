@@ -81,14 +81,16 @@ for c = 1:k
   %means = [means, rand(2,1)*5];
   covariances = [covariances, eye(m,m)(:)];
 end
+gamma_ik = zeros(n,k);
+for i = 1:n
+  gamma_ik(i,randi(k)) = 1;
+end
 
 liklhd_prev = 0;
-liklhd_current = sum(log(1+gaussmixN(X,means,covariances,priors)));
-
+liklhd_current = 1;
 iter = 0;
 %for iter = 1:20
 while (liklhd_current-liklhd_prev) > 0.01
-  gamma_ik = posteriors(X,means,covariances,priors);
   for c = 1:k
     nk = sum(gamma_ik(:,c));
     % update prior
@@ -109,6 +111,7 @@ while (liklhd_current-liklhd_prev) > 0.01
     cov *= 1/nk;
     covariances(:,c) = cov(:);
   end
+  gamma_ik = posteriors(X,means,covariances,priors);
   % update convergence criteria
   liklhd_prev = liklhd_current
   liklhd_current = sum(log(1+gaussmixN(X,means,covariances,priors)))
