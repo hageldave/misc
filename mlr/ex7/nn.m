@@ -87,7 +87,7 @@ for i = 1:rows(Xgrid)
 end
 F = reshape(F,size(x2));
 hold on;
-scatter(X(:,2)(Y==1),X(:,3)(Y==1), 'x');
-scatter(X(:,2)(Y==-1),X(:,3)(Y==-1), 'o');
+scatter(X(:,2)(Y==1),X(:,3)(Y==1),[],[1 0 0],'x');
+scatter(X(:,2)(Y==-1),X(:,3)(Y==-1),[],[.5 0 1],'o');
 contour(x2,x3,F, [0.5,0.5]);
 contour(x2,x3,F, [0.1,0.9], '--');
